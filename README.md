@@ -170,11 +170,11 @@ Set up your S3 buckets with the raw data and create spaces for the glue job proc
 
 The folder structure should look as so:
 
-raw-noaa/single-file/ (this is where your .dly file goes)
+-raw-noaa/single-file/ (this is where your .dly file goes)
 
-processed/raw/ (where your parsed Parquet data goes after your Glue job)
+-processed/raw/ (where your parsed Parquet data goes after your Glue job)
 
-combined/  (where your final CSV is uploaded after ETL runs)
+-combined/  (where your final CSV is uploaded after ETL runs)
 
 
 ### 6. Prefect Setup
@@ -186,7 +186,10 @@ python BostonWeatherFlow.py
 ---
 ### 7. Deploy to Streamlit
 
-Link your cloned repository to Stremlit cloud. You will need your GIT login. 
+Link your cloned repository to Stremlit cloud. 
+
+You will need your GIT login. 
+
 Once inside set your Streamlit secrets for AWS credentials for your IAM user in order to access your S3 buckets and the dashboard to successful feed. 
 
 ## Running the ETL Pipeline
