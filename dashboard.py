@@ -5,7 +5,12 @@ import boto3
 
 @st.cache_data
 def load_data_from_s3(bucket: str, key: str):
-    s3 = boto3.client("s3")
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=st.secrets["AWS"]["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=st.secrets["AWS"]["AWS_SECRET_ACCESS_KEY"],
+        region_name=st.secrets["AWS"].get("AWS_REGION", "us-east-1")
+    )
     obj = s3.get_object(Bucket=bucket, Key=key)
     df = pd.read_csv(obj['Body'], parse_dates=["date"])
     return df
