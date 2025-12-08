@@ -1,1 +1,0 @@
-streamlit pandas altair boto3 numpy
