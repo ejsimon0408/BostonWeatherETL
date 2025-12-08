@@ -37,10 +37,11 @@ if not current_weather.empty:
 years = sorted(df['year'].dropna().unique())
 selected_year = st.sidebar.selectbox("Select Year", years)
 
+months = list(range(1, 13))
 selected_month = st.sidebar.selectbox(
     "Select Month (optional)",
     [0] + months,
-    format_func=lambda x: "All" if x == 0 else str(x)  # convert all other months to string
+    format_func=lambda x: "All" if x == 0 else str(x)
 )
 
 filtered_df = df[df['year'] == selected_year]
