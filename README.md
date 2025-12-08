@@ -1,12 +1,12 @@
 # Boston Weather ETL Pipeline
 
-A production-ready, cloud-based ETL pipeline that processes historical and real-time weather data for Boston, providing actionable insights through automated data processing and an interactive Streamlit dashboard.
+A production ready, cloud based ETL pipeline that processes historical and real time weather data for Boston, providing actionable insights through automated data processing and an interactive Streamlit dashboard.
 
 ---
 
 ## Project Overview
 
-This end-to-end data engineering solution integrates multiple data sources, processes over 100MB of historical weather data, and delivers insights through an interactive Streamlit dashboard. The pipeline demonstrates enterprise-grade data engineering practices including orchestration, cloud storage, and automated monitoring.
+This end-to-end data engineering solution integrates multiple data sources, processes over 100MB of historical weather data, and delivers insights through an interactive Streamlit dashboard. The pipeline demonstrates enterprise grade data engineering practices including orchestration, cloud storage, and automated monitoring.
 
 ### Business Value
 
@@ -96,15 +96,20 @@ This end-to-end data engineering solution integrates multiple data sources, proc
 
 ### Data Sources
 
-- **Historical Data**: Multi-year weather records from **NOAA Boston Station**, initially pulled into **S3 raw buckets**, then parsed and structured via an **AWS Glue job**.  
+- **Historical Data**: Multi-year weather records from **NOAA Boston Station**, initially pulled into **S3 raw bucket**, then parsed and structured via an **AWS Glue job**. See docs for a copy of the AWS GLue Script.  
   - Temperature (TMAX, TMIN)  
-  - Precipitation (PRCP)  
-  *Source: [NOAA National Centers for Environmental Information](https://www.ncei.noaa.gov/)*  
+  - Precipitation (PRCP)
+  - You must download this and place this in your S3 bucket as described below in setup. 
+  *Source: [NOAA National Centers for Environmental Information](https://www.ncei.noaa.gov/)*
+   
 
 - **Real-time Data**: Current weather from Open-Meteo API  
   - Live temperature readings  
   - Wind speed measurements  
-  - Timezone-aware timestamps  
+  - Timezone-aware timestamps
+  * Source: https://open-meteo.com/en/docs
+ 
+*Note: This ETL can be used for multiple locations. Please be mindful to update BostonWeatherFlow.py for your use case with appropriate latitude and longitude information. Both the NOAA data and Open Meteo API data have multi-city capabilities. For this use case we focus specifically on Boston. 
 
 ### Transformations
 
@@ -131,7 +136,7 @@ This end-to-end data engineering solution integrates multiple data sources, proc
 - AWS Account with S3 and Glue access  
 - Prefect Cloud account  
 - Git  
-
+- Streamlit Cloud
 ---
 
 ## Installation & Setup
@@ -157,18 +162,30 @@ pip install -r requirements.txt
 
 ### 4. Configure AWS Credentials
 
-aws configure  
-# Enter your AWS Access Key ID  
-# Enter your AWS Secret Access Key  
-# Enter your default region (e.g., us-east-1)  
+Use your own AWS Credentials 
 
-### 5. Prefect Setup
+### 5. Set Up S3 Buckets
+
+Set up your S3 buckets with the raw data and create spaces for the glue job processed Parquets and also for the final output. 
+
+The folder structure should look as so:
+
+raw-noaa/single-file/ (this is where your .dly file goes)
+processed/raw/ (where your parsed Parquet data goes after your Glue job)
+combined/  (where your final CSV is uploaded after ETL runs)
+
+
+### 6. Prefect Setup
 
 prefect cloud login  
 prefect work-pool create "cloud pool" --type process  
 python BostonWeatherFlow.py  
 
 ---
+### 7. Deploy to Streamlit
+
+Link your cloned repository to Stremlit cloud. You will need your GIT login. 
+Once inside set your Streamlit secrets for AWS credentials for your IAM user in order to access your S3 buckets and the dashboard to successful feed. 
 
 ## Running the ETL Pipeline
 
@@ -219,9 +236,9 @@ AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key  
 AWS_DEFAULT_REGION=us-east-1  
 
-S3_BUCKET=weather-etl-emily-2025  
-S3_INPUT_PREFIX=processed/raw/  
-S3_OUTPUT_KEY=combined/boston_weather_combined.csv  
+S3_BUCKET=yourS3bucket  
+S3_INPUT_PREFIX=yourS3Input 
+S3_OUTPUT_KEY=yourfinaloutput.csv  
 
 ### Pipeline Parameters
 
@@ -238,10 +255,8 @@ boston_weather_pipeline(
 
 ## Testing
 
-### Manual Testing
-
-python BostonWeatherFlow.py  
-aws s3 ls s3://weather-etl-emily-2025/combined/  
+### Monitoring in Prefect
+- Can trigger manual runs in Prefect
 
 ### Data Validation Checks
 
@@ -253,7 +268,7 @@ aws s3 ls s3://weather-etl-emily-2025/combined/
 ---
 
 ## Future Enhancements
-
+- Implementing a job to pull data from NOAA and dump into Raw S3 bucket, to remove any manual processes
 - Add weather forecasting capabilities  
 - Implement data versioning with DVC  
 - Email notifications for severe weather anomalies  
