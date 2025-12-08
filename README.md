@@ -30,6 +30,20 @@ This end-to-end data engineering solution integrates multiple data sources, proc
                                    │
                                    ▼
                      ┌─────────────────────────────┐
+                     │         AWS S3              │
+                     │    (Raw Data Storage)       │
+                     │ NOAA data placed here       │
+                     └─────────────┬───────────────┘
+                                   │
+                                   ▼
+                     ┌─────────────────────────────┐
+                     │       AWS Glue Job          │
+                     │  Parses raw NOAA data into  │
+                     │  structured buckets         │
+                     └─────────────┬───────────────┘
+                                   │
+                                   ▼
+                     ┌─────────────────────────────┐
                      │        ETL Pipeline         │
                      │                             │
                      │  • Extract                  │
@@ -65,9 +79,10 @@ This end-to-end data engineering solution integrates multiple data sources, proc
 
 1. **Prefect** - Workflow orchestration and monitoring  
 2. **AWS S3** - Cloud data storage and retrieval  
-3. **Pandas** - Data transformation and processing  
-4. **Streamlit** - Interactive data visualization  
-5. **Boto3** - AWS service integration  
+3. **AWS Glue** - Data parsing and transformation  
+4. **Pandas** - Data transformation and processing  
+5. **Streamlit** - Interactive data visualization  
+6. **Boto3** - AWS service integration  
 
 ### Additional Tools
 
@@ -81,7 +96,7 @@ This end-to-end data engineering solution integrates multiple data sources, proc
 
 ### Data Sources
 
-- **Historical Data**: Multi-year weather records from **NOAA Boston Station**, stored in Parquet format on AWS S3  
+- **Historical Data**: Multi-year weather records from **NOAA Boston Station**, initially pulled into **S3 raw buckets**, then parsed and structured via an **AWS Glue job**.  
   - Temperature (TMAX, TMIN)  
   - Precipitation (PRCP)  
   *Source: [NOAA National Centers for Environmental Information](https://www.ncei.noaa.gov/)*  
@@ -113,7 +128,7 @@ This end-to-end data engineering solution integrates multiple data sources, proc
 ## Prerequisites
 
 - Python 3.8+  
-- AWS Account with S3 access  
+- AWS Account with S3 and Glue access  
 - Prefect Cloud account  
 - Git  
 
@@ -189,10 +204,9 @@ View the **live published dashboard** here: [Boston Weather ETL Dashboard](https
 
 boston-weather-etl/  
 ├── BostonWeatherFlow.py      # Main ETL pipeline  
-├── StreamlitDashboard.py     # Interactive dashboard  
+├── Dashboard.py              # Interactive dashboard  
 ├── requirements.txt          # Python dependencies  
-├── README.md                 # Project documentation  
-├── data/                     # Local data directory  
+├── README.md                 # Project documentation   
 └── docs/                     # Documentation and presentations  
 
 ---
@@ -255,6 +269,7 @@ aws s3 ls s3://weather-etl-emily-2025/combined/
 
 - NOAA Boston Station for historical weather data  
 - Open-Meteo API for real-time data  
+- AWS Glue for parsing raw NOAA data  
 - Prefect for workflow orchestration  
 - DACSS 690A instructors and TAs  
 
