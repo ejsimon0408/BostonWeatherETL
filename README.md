@@ -1,11 +1,24 @@
-# BostonWeatherETL
-Boston Weather ETL Pipeline
+# Boston Weather ETL Pipeline
 
-This is a cloud-based ETL pipeline that processes historical and real-time weather data for Boston, MA. The pipeline provides actionable insights through automated data processing and an interactive Streamlit dashboard.
+A production-ready, cloud-based ETL pipeline that processes historical and real-time weather data for Boston, providing actionable insights through automated data processing and an interactive Streamlit dashboard.
 
-The pipeline is production-ready, handles 100MB+ of historical weather data, and demonstrates enterprise-grade data engineering practices including orchestration, cloud storage, and automated monitoring.
+---
 
-Architecture
+## Project Overview
+
+This end-to-end data engineering solution integrates multiple data sources, processes over 100MB of historical weather data, and delivers insights through an interactive Streamlit dashboard. The pipeline demonstrates enterprise-grade data engineering practices including orchestration, cloud storage, and automated monitoring.
+
+### Business Value
+
+- **Real-time Weather Insights**: Automated processing of current weather conditions  
+- **Historical Trend Analysis**: Comparative analysis against multi-year historical baselines  
+- **Anomaly Detection**: Automated flagging of temperature anomalies for decision support  
+- **Scalable Architecture**: Cloud-native design supporting growth and additional data sources  
+
+---
+
+## Architecture
+
                      ┌─────────────────────────────┐
                      │         Data Sources        │
                      │                             │
@@ -41,214 +54,220 @@ Architecture
                      │  • Precipitation Analysis   │
                      │                             │
                      │ Live URL:                   │
-                     │ https://bostonweatheretl-   │
-                     │ fvgk36nhmvp8uy4hgnxyng.    │
-                     │ streamlit.app/              │
+                     │ https://bostonweatheretl-fvgk36nhmvp8uy4hgnxyng.streamlit.app/ │
                      └─────────────────────────────┘
 
-Data Source and Processing
-Data Sources
+---
 
-Historical Weather Data:
-Multi-year weather records from NOAA Boston Station, stored in Parquet format on AWS S3.
-Includes:
+## Technologies Used
 
-Temperature (TMAX, TMIN)
+### Core Technologies
 
-Precipitation (PRCP)
-Source: NOAA National Centers for Environmental Information
+1. **Prefect** - Workflow orchestration and monitoring  
+2. **AWS S3** - Cloud data storage and retrieval  
+3. **Pandas** - Data transformation and processing  
+4. **Streamlit** - Interactive data visualization  
+5. **Boto3** - AWS service integration  
 
-Real-time Weather Data:
-Current weather from Open-Meteo API.
-Includes:
+### Additional Tools
 
-Live temperature readings
+- **Altair** - Advanced data visualization  
+- **NumPy** - Numerical computations  
+- **Requests** - API integration  
 
-Wind speed measurements
+---
 
-Timezone-aware timestamps
+## Data Processing
 
-ETL Process
+### Data Sources
 
-The ETL pipeline performs the following steps:
+- **Historical Data**: Multi-year weather records from **NOAA Boston Station**, stored in Parquet format on AWS S3  
+  - Temperature (TMAX, TMIN)  
+  - Precipitation (PRCP)  
+  *Source: [NOAA National Centers for Environmental Information](https://www.ncei.noaa.gov/)*  
 
-Extraction: Pulls historical data from S3 and real-time data from Open-Meteo API.
+- **Real-time Data**: Current weather from Open-Meteo API  
+  - Live temperature readings  
+  - Wind speed measurements  
+  - Timezone-aware timestamps  
 
-Transformation:
+### Transformations
 
-Normalizes data across legacy and modern schemas
+- **Data Normalization**: Unified format across legacy and modern data schemas  
+- **Temperature Conversion**: Fahrenheit to Celsius standardization  
+- **Anomaly Detection**: Statistical flagging based on historical averages  
+  - Daily comparison (same calendar day across all years)  
+  - Monthly comparison (same month across all years)  
+  - ±3°C threshold for "Above/Below Average" classification  
+- **Data Pivoting**: Wide-format conversion for efficient analysis  
 
-Converts temperature units (Fahrenheit → Celsius)
+### Data Quality
 
-Flags temperature anomalies based on historical averages (±3°C threshold)
+- Automatic handling of missing values  
+- Type validation and coercion  
+- Date parsing with error handling  
+- Duplicate detection and removal  
 
-Pivots data into wide format for efficient analysis
+---
 
-Loading: Saves the processed dataset back to AWS S3 for downstream consumption.
+## Prerequisites
 
-Data Quality Measures
+- Python 3.8+  
+- AWS Account with S3 access  
+- Prefect Cloud account  
+- Git  
 
-Automatic handling of missing values
+---
 
-Type validation and coercion
+## Installation & Setup
 
-Date parsing with error handling
+### 1. Clone the Repository
 
-Duplicate detection and removal
+git clone https://github.com/ejsimon0408/boston-weather-etl.git  
+cd boston-weather-etl  
 
-Prerequisites
+### 2. Create a Virtual Environment
 
-Before running the pipeline or dashboard, ensure the following software is installed:
+For macOS/Linux:  
+python -m venv .venv  
+source .venv/bin/activate  
 
-Python 3.8+
+For Windows:  
+python -m venv .venv  
+.venv\Scripts\activate  
 
-pip (Python package installer)
+### 3. Install Dependencies
 
-AWS Account with S3 access
+pip install -r requirements.txt  
 
-Prefect Cloud account
+### 4. Configure AWS Credentials
 
-Git
+aws configure  
+# Enter your AWS Access Key ID  
+# Enter your AWS Secret Access Key  
+# Enter your default region (e.g., us-east-1)  
 
-Installation
-1. Clone the Repository
-git clone https://github.com/ejsimon0408/boston-weather-etl.git
-cd boston-weather-etl
+### 5. Prefect Setup
 
-2. Create Virtual Environment
+prefect cloud login  
+prefect work-pool create "cloud pool" --type process  
+python BostonWeatherFlow.py  
 
-For macOS/Linux:
+---
 
-python -m venv .venv
-source .venv/bin/activate
+## Running the ETL Pipeline
 
+### Manual Execution
 
-For Windows:
+python BostonWeatherFlow.py  
 
-python -m venv .venv
-.venv\Scripts\activate
+### Scheduled Execution
 
-3. Install Dependencies
-pip install -r requirements.txt
+Once deployed, the pipeline runs automatically every 24 hours via Prefect Cloud.  
 
-4. Configure AWS Credentials
-aws configure
-# Enter your AWS Access Key ID
-# Enter your AWS Secret Access Key
-# Enter your default region (e.g., us-east-1)
+### Monitoring
 
-5. Prefect Setup
-prefect cloud login
-prefect work-pool create "cloud pool" --type process
-python BostonWeatherFlow.py
+Pipeline status and logs are viewable in Prefect Cloud.  
 
-Running the ETL Pipeline
-Manual Execution
-python BostonWeatherFlow.py
+---
 
-Scheduled Execution
+## Accessing the Dashboard
 
-Once deployed, the pipeline runs automatically every 24 hours via Prefect Cloud.
+View the **live published dashboard** here: [Boston Weather ETL Dashboard](https://bostonweatheretl-fvgk36nhmvp8uy4hgnxyng.streamlit.app/)
 
-Monitoring
+### Dashboard Features
 
-Pipeline status and logs are viewable in Prefect Cloud.
+- Current Weather Display: Latest temperature with anomaly flag  
+- Historical Data Explorer: Year and month filtering  
+- Temperature Trends: Interactive line charts for TMAX/TMIN  
+- Anomaly Distribution: Bar charts showing temperature flags  
+- Precipitation Analysis: Daily precipitation visualization  
 
-Accessing the Dashboard
+---
 
-View the live published dashboard here: Boston Weather ETL Dashboard
+## Project Structure
 
-Dashboard Features
+boston-weather-etl/  
+├── BostonWeatherFlow.py      # Main ETL pipeline  
+├── StreamlitDashboard.py     # Interactive dashboard  
+├── requirements.txt          # Python dependencies  
+├── README.md                 # Project documentation  
+├── data/                     # Local data directory  
+└── docs/                     # Documentation and presentations  
 
-Current Weather Display: Latest temperature with anomaly flag
+---
 
-Historical Data Explorer: Year and month filtering
+## Configuration
 
-Temperature Trends: Interactive line charts for TMAX/TMIN
+### Environment Variables
 
-Anomaly Distribution: Bar charts showing temperature flags
+AWS_ACCESS_KEY_ID=your_access_key  
+AWS_SECRET_ACCESS_KEY=your_secret_key  
+AWS_DEFAULT_REGION=us-east-1  
 
-Precipitation Analysis: Daily precipitation visualization
+S3_BUCKET=weather-etl-emily-2025  
+S3_INPUT_PREFIX=processed/raw/  
+S3_OUTPUT_KEY=combined/boston_weather_combined.csv  
 
-Project Structure
-boston-weather-etl/
-├── BostonWeatherFlow.py      # Main ETL pipeline
-├── StreamlitDashboard.py     # Interactive dashboard
-├── requirements.txt          # Dependencies
-├── README.md                 # Project documentation
-├── data/                     # Local data directory
-└── docs/                     # Documentation and presentations
+### Pipeline Parameters
 
-Configuration
-Environment Variables
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your-secret_key
-AWS_DEFAULT_REGION=us-east-1
+Modify in BostonWeatherFlow.py:  
 
-S3_BUCKET=weather-etl-emily-2025
-S3_INPUT_PREFIX=processed/raw/
-S3_OUTPUT_KEY=combined/boston_weather_combined.csv
+boston_weather_pipeline(  
+    s3_bucket="your-bucket-name",  
+    s3_parquet_prefix="your/prefix/",  
+    s3_output_bucket="your-output-bucket",  
+    s3_output_key="path/to/output.csv"  
+)  
 
-Pipeline Parameters
+---
 
-Modify BostonWeatherFlow.py as needed:
+## Testing
 
-boston_weather_pipeline(
-    s3_bucket="your-bucket-name",
-    s3_parquet_prefix="your/prefix/",
-    s3_output_bucket="your-output-bucket",
-    s3_output_key="path/to/output.csv"
-)
+### Manual Testing
 
-Testing
-Manual Testing
-python BostonWeatherFlow.py
-aws s3 ls s3://weather-etl-emily-2025/combined/
+python BostonWeatherFlow.py  
+aws s3 ls s3://weather-etl-emily-2025/combined/  
 
-Data Validation
+### Data Validation Checks
 
-Row count validation
+- Row count validation  
+- Column presence verification  
+- Date range consistency  
+- Temperature range sanity checks  
 
-Column presence verification
+---
 
-Date range consistency
+## Future Enhancements
 
-Temperature range sanity checks
+- Add weather forecasting capabilities  
+- Implement data versioning with DVC  
+- Email notifications for severe weather anomalies  
+- Expand to multiple cities  
+- Machine learning for predictive analytics  
+- Unit and integration tests  
+- Docker containerization  
+- CI/CD pipeline  
 
-Future Enhancements
+---
 
-Add weather forecasting capabilities
+## Acknowledgments
 
-Implement data versioning with DVC
+- NOAA Boston Station for historical weather data  
+- Open-Meteo API for real-time data  
+- Prefect for workflow orchestration  
+- DACSS 690A instructors and TAs  
 
-Email notifications for severe weather anomalies
+---
 
-Expand to multiple cities
+## Author
 
-Machine learning for predictive analytics
+**Emily Simon**  
+DACSS 690A - Fall 2025  
+GitHub: [ejsimon0408](https://github.com/ejsimon0408)  
 
-Unit and integration tests
+---
 
-Docker containerization
-
-CI/CD pipeline
-
-Acknowledgments
-
-NOAA Boston Station for historical weather data
-
-Open-Meteo API for real-time data
-
-Prefect for workflow orchestration
-
-DACSS 690A instructors and TAs
-
-Author
-
-Emily Simon
-DACSS 690A - Fall 2025
-GitHub: ejsimon0408
-
-License
+## License
 
 This project is created for educational purposes as part of DACSS 690A coursework.
