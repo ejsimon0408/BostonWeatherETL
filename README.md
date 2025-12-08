@@ -138,7 +138,7 @@ This end-to-end data engineering solution integrates multiple data sources, proc
 
 ### 1. Clone the Repository
 
-git clone https://github.com/ejsimon0408/boston-weather-etl.git  
+git clone https://github.com/ejsimon0408/BostonWeatherETL/tree/main.git  
 cd boston-weather-etl  
 
 ### 2. Create a Virtual Environment
