@@ -1,0 +1,90 @@
+import sys
+from awsglue.utils import getResolvedOptions
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+from awsglue.job import Job
+from pyspark.sql import functions as F
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, ArrayType, FloatType
+
+# -------------------------
+# Glue job setup
+# -------------------------
+args = getResolvedOptions(sys.argv, ['JOB_NAME'])
+sc = SparkContext()
+glueContext = GlueContext(sc)
+spark = glueContext.spark_session
+job = Job(glueContext)
+job.init(args['JOB_NAME'], args)
+
+# -------------------------
+# Input / Output paths
+# -------------------------
+input_path = "s3://weather-etl-emily-2025/raw-noaa/single-file/USW00014739.dly"
+output_path = "s3://weather-etl-emily-2025/processed/raw/"
+
+# -------------------------
+# Read raw NOAA data
+# -------------------------
+df_raw = spark.read.text(input_path)
+
+# -------------------------
+# Parse each line into structured columns
+# -------------------------
+def parse_line(line):
+    station = line[0:11]
+    year = int(line[11:15])
+    month = int(line[15:17])
+    element = line[17:21]
+    values = []
+    for day in range(31):
+        start = 21 + day*8
+        val_str = line[start:start+5]
+        try:
+            val = int(val_str)
+            if val == -9999:  # NOAA missing value
+                val = None
+        except:
+            val = None
+        values.append(val)
+    return (station, year, month, element, values)
+
+schema = StructType([
+    StructField("station", StringType(), True),
+    StructField("year", IntegerType(), True),
+    StructField("month", IntegerType(), True),
+    StructField("element", StringType(), True),
+    StructField("values", ArrayType(IntegerType()), True)
+])
+
+parse_udf = F.udf(parse_line, schema)
+df_parsed = df_raw.withColumn("parsed", parse_udf(F.col("value"))).select("parsed.*")
+
+# -------------------------
+# Explode daily values into rows
+# -------------------------
+df_exploded = df_parsed.select(
+    "station", "year", "month", "element",
+    F.posexplode("values").alias("day_index", "value")
+)
+
+df_final = df_exploded.withColumn("day", F.col("day_index") + 1).drop("day_index")
+
+# -------------------------
+# Convert temperatures from tenths of °C to °C floats (optional)
+# Only apply to temperature elements (TMAX, TMIN, TAVG)
+# -------------------------
+df_final = df_final.withColumn(
+    "value_c",
+    F.when(F.col("element").isin("TMAX", "TMIN", "TAVG"), F.col("value")/10.0)
+     .otherwise(F.col("value").cast(FloatType()))
+)
+
+# -------------------------
+# Write to Parquet, partitioned by year/month for efficiency
+# -------------------------
+df_final.write.mode("overwrite").partitionBy("year", "month").parquet(output_path)
+
+# -------------------------
+# Commit job
+# -------------------------
+job.commit()
