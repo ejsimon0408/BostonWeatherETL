@@ -171,7 +171,9 @@ Set up your S3 buckets with the raw data and create spaces for the glue job proc
 The folder structure should look as so:
 
 raw-noaa/single-file/ (this is where your .dly file goes)
+
 processed/raw/ (where your parsed Parquet data goes after your Glue job)
+
 combined/  (where your final CSV is uploaded after ETL runs)
 
 
