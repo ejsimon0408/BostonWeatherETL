@@ -370,10 +370,5 @@ def boston_weather_pipeline(
     return {"records": len(final_df), "csv_s3_path": f"s3://{s3_output_bucket}/{s3_output_key}"}
 
 if __name__ == "__main__":
-    # Serve the Boston weather pipeline on a daily schedule
-    boston_weather_pipeline.serve(
-        name="boston-weather-deployment",
-        interval=86400,  # run every 24 hours (in seconds)
-        tags=["weather", "boston", "etl", "production"],
-        description="Boston weather ETL pipeline"
-    )
+    result = boston_weather_pipeline()
+    print(result)
