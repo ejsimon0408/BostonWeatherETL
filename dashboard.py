@@ -22,15 +22,18 @@ st.title("Boston Weather Dashboard 🌤️")
 
 current_weather = df[df['source'] == 'api'].sort_values('date', ascending=False).head(1)
 
-
 if not current_weather.empty:
     row = current_weather.iloc[0]
 
     temp = row['temperature']
-    dt = row['date']
+
+    if 'time' in row and pd.notna(row['time']):
+        timestamp = f"{row['date']} {row['time']}"
+    else:
+        timestamp = str(row['date'])
 
     st.metric(
-        label=f"Current Temperature ({dt.date()})",
+        label=f"Current Temperature ({timestamp})",
         value=f"{temp:.1f}°C"
     )
 
