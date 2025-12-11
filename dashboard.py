@@ -3,7 +3,6 @@ import pandas as pd
 import altair as alt
 import boto3
 
-@st.cache_data
 def load_data_from_s3(bucket: str, key: str):
     s3 = boto3.client(
         "s3",
