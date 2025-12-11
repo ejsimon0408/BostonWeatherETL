@@ -22,15 +22,16 @@ st.title("Boston Weather Dashboard 🌤️")
 
 current_weather = df[df['source'] == 'api'].sort_values('date', ascending=False).head(1)
 
+
 if not current_weather.empty:
-    temp = current_weather.iloc[0]['value_c']
-    flag = current_weather.iloc[0]['daily_flag']
-    dt = current_weather.iloc[0]['date']
+    row = current_weather.iloc[0]
+
+    temp = row['temperature']
+    dt = row['date']
 
     st.metric(
-        label=f"Current Temperature ({dt})",
-        value=f"{temp:.1f}°C",
-        delta=f"{flag}"
+        label=f"Current Temperature ({dt.date()})",
+        value=f"{temp:.1f}°C"
     )
 
 years = sorted(df['year'].dropna().unique())
