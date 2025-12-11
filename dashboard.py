@@ -27,15 +27,17 @@ if not current_weather.empty:
 
     temp = row['temperature']
 
+    
     if 'time' in row and pd.notna(row['time']):
-        timestamp = f"{row['date']} {row['time']}"
+        timestamp = pd.to_datetime(row['time'])
     else:
-        timestamp = str(row['date'])
+        timestamp = row['date']
 
     st.metric(
         label=f"Current Temperature ({timestamp})",
         value=f"{temp:.1f}°C"
     )
+
 
 years = sorted(df['year'].dropna().unique())
 selected_year = st.sidebar.selectbox("Select Year", years)
